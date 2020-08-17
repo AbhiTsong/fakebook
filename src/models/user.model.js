@@ -98,6 +98,16 @@ const userSchema = mongoose.Schema(
         },
       },
     ],
+    country: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: null,
+    },
+    avatar: {
+      type: Buffer,
+      default: null,
+    },
   },
   {
     timestamps: true,

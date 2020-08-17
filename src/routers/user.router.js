@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 let User = require("../models/user.model");
 const auth = require("../middlewares/auth.middleware");
+const multer = require("multer");
+const sharp = require("sharp");
 
 // Signing Up A New User
 router.post("/users/create", async (req, res) => {
@@ -34,7 +36,7 @@ router.post("/users/logout", auth, async (req, res) => {
       (token) => token.token !== req.token
     );
     await req.user.save();
-    res.send({Message: "Logged Out From The Current Device."});
+    res.send({ Message: "Logged Out From The Current Device." });
   } catch (error) {
     res.status(400).send();
   }
@@ -46,6 +48,65 @@ router.post("/users/logoutAll", auth, async (req, res) => {
     req.user.tokens = [];
     await req.user.save();
     res.send({ Message: "Logged Out From All The Devices" });
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
+// User Avatar Upload
+let upload = multer({
+  limits: {
+    fileSize: 1000000,
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)/)) {
+      return cb(new Error("Only .jpg .jpeg .png file type supported."));
+    }
+    cb(null, true);
+  },
+});
+
+router.post(
+  "/users/me/avatar",
+  auth,
+  upload.single("avatar"),
+  async (req, res) => {
+    try {
+      let buffer = await sharp(req.file.buffer)
+        .resize({ width: 250, height: 250 })
+        .png()
+        .toBuffer();
+
+      req.user.avatar = buffer;
+      await req.user.save();
+      res.status(200).send(req.user);
+    } catch (error) {
+      res.status(400).send(error.message);
+    }
+  }
+);
+
+// Gettin The User Profie From The DB
+router.get("/users/:id/avatar", async (req, res) => {
+  try {
+    let user = await User.findOne({ _id: req.params.id });
+    if (!user || !user.avatar) {
+      throw new Error("Avatar Not Yet Addded");
+    }
+
+    res.set("Content-Type", "image/jpg");
+    res.send(user.avatar);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+// Deleting the User Profile
+router.delete("/users/avatar", auth, async (req, res) => {
+  try {
+    req.user.avatar = null;
+    await req.user.save();
+    res.status(200).send(user);
   } catch (error) {
     res.status(400).send();
   }
