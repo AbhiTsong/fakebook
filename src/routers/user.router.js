@@ -86,7 +86,7 @@ router.post(
   }
 );
 
-// Gettin The User Profie From The DB
+// Getting The User Profie From The DB
 router.get("/users/:id/avatar", async (req, res) => {
   try {
     let user = await User.findOne({ _id: req.params.id });

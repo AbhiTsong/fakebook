@@ -114,6 +114,13 @@ const userSchema = mongoose.Schema(
   }
 );
 
+// virtual for linking post to the user who created it
+userSchema.virtual("posts", {
+  ref: "Post",
+  localField: "_id",
+  foreignField: "owner",
+});
+
 // Middleware for authenticating the user
 userSchema.statics.authenticateUser = async function (email, password) {
   let user = await User.findOne({ email });
