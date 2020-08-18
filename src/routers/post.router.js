@@ -4,13 +4,26 @@ const auth = require("../middlewares/auth.middleware");
 const router = express.Router();
 
 // Add A New Post
-router.post("/post/create", auth, async (req, res) => {
+router.post("/posts/create", auth, async (req, res) => {
   let post = new Post({ ...req.body, owner: req.user._id });
   try {
     await post.save();
     res.status(201).send(post);
   } catch (error) {
     res.status(400).send(error.message);
+  }
+});
+
+// Route For Getting All The Posts in DB
+router.get("/posts", auth, async (req, res) => {
+  try {
+    let allPosts = await Post.find({});
+    if (allPosts.length === 0) {
+      return res.status(204).send({ message: "There Are No Posts" });
+    }
+    res.send(allPosts);
+  } catch (error) {
+    return res.status(400).send(error.message);
   }
 });
 
@@ -47,6 +60,21 @@ router.patch("/posts/:id", auth, async (req, res) => {
     updates.forEach((update) => (post[update] = req.body[update]));
     await post.save();
     res.send(post);
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
+
+// Deleting The User Post
+router.delete("/posts/:id", auth, async (req, res) => {
+  try {
+    let post = await Post.findByIdAndDelete(req.params.id);
+
+    if (!post) {
+      throw new Error();
+    }
+    res.status(200).send(post);
   } catch (error) {
     res.status(400).send();
   }

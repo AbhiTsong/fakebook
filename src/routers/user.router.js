@@ -59,7 +59,7 @@ let upload = multer({
     fileSize: 1000000,
   },
   fileFilter(req, file, cb) {
-    if (!file.originalname.match(/\.(jpg|jpeg|png)/)) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
       return cb(new Error("Only .jpg .jpeg .png file type supported."));
     }
     cb(null, true);

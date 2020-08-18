@@ -115,6 +115,13 @@ const userSchema = mongoose.Schema(
 );
 
 // virtual for linking post to the user who created it
+userSchema.virtual("photo", {
+  ref: "Photo",
+  localField: "_id",
+  foreignField: "owner",
+});
+
+// virtual for linking post to the user who created it
 userSchema.virtual("posts", {
   ref: "Post",
   localField: "_id",
