@@ -1,10 +1,13 @@
 const express = require("express");
+const cors  =  require("cors");
 require("./db/mongoose");
 const app = express();
 require("dotenv").config();
 
-const PORT = process.env.PORT;
 
+
+app.use(cors())
+const PORT = process.env.PORT;
 app.use(express.json());
 
 // Route Imports

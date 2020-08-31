@@ -5,8 +5,12 @@ const postSchema = mongoose.Schema(
     description: {
       type: String,
       trim: true,
-      required: true,
+      default: null,
       maxlength: [500, "Please add post not a mini essay"],
+    },
+    photo: {
+      type: Buffer,
+      default: null
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,

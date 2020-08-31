@@ -1,9 +1,27 @@
+// NPM imports
 const express = require("express");
-const Post = require("../models/posts.model");
-const auth = require("../middlewares/auth.middleware");
+const multer = require("multer");
+const sharp = require("sharp");
 const router = express.Router();
 
-// Add A New Post
+// App Modules
+const Post = require("../models/posts.model");
+const auth = require("../middlewares/auth.middleware");
+
+// Adding Photo
+let upload = multer({
+  limits: {
+    fileSize: 1000000,
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      return cb(new Error(`Only .jpg .jpeg .png file type supported`));
+    }
+    cb(null, true);
+  },
+});
+
+// Add A Post Only Post
 router.post("/posts/create", auth, async (req, res) => {
   let post = new Post({ ...req.body, owner: req.user._id });
   try {
@@ -13,6 +31,33 @@ router.post("/posts/create", auth, async (req, res) => {
     res.status(400).send(error.message);
   }
 });
+
+// Add A New Post With Photo
+router.post(
+  "/posts/photo/create",
+  auth,
+  upload.single("photo"),
+  async (req, res) => {
+    let post = new Post({ ...req.body, owner: req.user._id });
+    try {
+      let buffer;
+      if (req.file.buffer !== undefined) {
+        buffer = await sharp(req.file.buffer)
+          // .resize({ width: 500, height: 750 })
+          .png()
+          .toBuffer();
+      }
+
+      post.owner = req.user._id;
+      post.photo = buffer ? buffer : null;
+
+      await post.save();
+      res.status(201).send(post);
+    } catch (error) {
+      res.status(400).send(error.message);
+    }
+  }
+);
 
 // Route For Getting All The Posts in DB
 router.get("/posts", auth, async (req, res) => {
@@ -64,7 +109,6 @@ router.patch("/posts/:id", auth, async (req, res) => {
     res.status(400).send();
   }
 });
-
 
 // Deleting The User Post
 router.delete("/posts/:id", auth, async (req, res) => {
