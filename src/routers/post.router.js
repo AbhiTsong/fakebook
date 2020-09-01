@@ -8,7 +8,7 @@ const router = express.Router();
 const Post = require("../models/posts.model");
 const auth = require("../middlewares/auth.middleware");
 
-// Adding Photo
+/************************* Converting Photo   ************************* */
 let upload = multer({
   limits: {
     fileSize: 1000000,
@@ -21,10 +21,21 @@ let upload = multer({
   },
 });
 
-// Add A Post Only Post
-router.post("/posts/create", auth, async (req, res) => {
+/************************* Add A Post (Pic || text)   ************************* */
+router.post("/posts/create", auth, upload.single("photo"), async (req, res) => {
   let post = new Post({ ...req.body, owner: req.user._id });
   try {
+    let buffer;
+    if (req.file.buffer !== undefined) {
+      buffer = await sharp(req.file.buffer)
+        // .resize({ width: 500, height: 750 })
+        .png()
+        .toBuffer();
+    }
+
+    post.owner = req.user._id;
+    post.photo = buffer ? buffer : null;
+
     await post.save();
     res.status(201).send(post);
   } catch (error) {
@@ -32,34 +43,25 @@ router.post("/posts/create", auth, async (req, res) => {
   }
 });
 
-// Add A New Post With Photo
-router.post(
-  "/posts/photo/create",
-  auth,
-  upload.single("photo"),
-  async (req, res) => {
-    let post = new Post({ ...req.body, owner: req.user._id });
-    try {
-      let buffer;
-      if (req.file.buffer !== undefined) {
-        buffer = await sharp(req.file.buffer)
-          // .resize({ width: 500, height: 750 })
-          .png()
-          .toBuffer();
-      }
 
-      post.owner = req.user._id;
-      post.photo = buffer ? buffer : null;
 
-      await post.save();
-      res.status(201).send(post);
-    } catch (error) {
-      res.status(400).send(error.message);
-    }
-  }
-);
+// // Add A New Post (Only Text)
+ router.post(
+   "/post",
+   auth,
+   async (req, res) => {
+     let post = new Post({ ...req.body, owner: req.user._id });
+     try {
+       post.owner = req.user._id;
+       await post.save();
+       res.status(201).send(post);
+     } catch (error) {
+       res.status(400).send(error.message);
+     }
+   }
+ );
 
-// Route For Getting All The Posts in DB
+/************************* Route For Getting All The Posts in DB   ************************* */
 router.get("/posts", auth, async (req, res) => {
   try {
     let allPosts = await Post.find({});
@@ -72,7 +74,7 @@ router.get("/posts", auth, async (req, res) => {
   }
 });
 
-//Route Getting the Users Posts
+/************************* Route Getting the Users Posts   ************************* */
 router.get("/posts/allPosts", auth, async (req, res) => {
   try {
     let userPosts = await Post.find({ owner: req.user._id });
@@ -86,7 +88,8 @@ router.get("/posts/allPosts", auth, async (req, res) => {
   }
 });
 
-// Route For Updating The User Post
+/************************* Route For Updating The User Post  ************************* */
+
 router.patch("/posts/:id", auth, async (req, res) => {
   let updates = Object.keys(req.body);
   let valid = ["description"];
@@ -110,7 +113,7 @@ router.patch("/posts/:id", auth, async (req, res) => {
   }
 });
 
-// Deleting The User Post
+/************************* Deleting The User Post  ************************* */
 router.delete("/posts/:id", auth, async (req, res) => {
   try {
     let post = await Post.findByIdAndDelete(req.params.id);
