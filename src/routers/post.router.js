@@ -25,7 +25,7 @@ let upload = multer({
 router.post("/posts/create", auth, upload.single("photo"), async (req, res) => {
   let post = new Post({ ...req.body, owner: req.user._id });
   try {
-    let buffer;
+    let buffer; 
     if (req.file.buffer !== undefined) {
       buffer = await sharp(req.file.buffer)
         // .resize({ width: 500, height: 750 })
@@ -50,7 +50,8 @@ router.post("/posts/create", auth, upload.single("photo"), async (req, res) => {
    "/post",
    auth,
    async (req, res) => {
-     let post = new Post({ ...req.body, owner: req.user._id });
+     let post = new Post({ ...req.body, owner: req.user._id, creator: `${req.user.firstName} ${req.user.lastName}`});
+
      try {
        post.owner = req.user._id;
        await post.save();
@@ -73,6 +74,7 @@ router.get("/posts", auth, async (req, res) => {
     return res.status(400).send(error.message);
   }
 });
+
 
 /************************* Route Getting the Users Posts   ************************* */
 router.get("/posts/allPosts", auth, async (req, res) => {

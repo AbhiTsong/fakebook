@@ -16,6 +16,10 @@ const postSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
+    creator: {
+     type: String,
+     default: null
+    }
   },
   {
     timestamps: true,

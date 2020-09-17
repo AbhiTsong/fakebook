@@ -103,6 +103,11 @@ const userSchema = mongoose.Schema(
       type: Buffer,
       default: null,
     },
+
+    cover: {
+      type: Buffer,
+      default: null,
+    },
   },
   {
     timestamps: true,

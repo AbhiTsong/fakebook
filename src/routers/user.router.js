@@ -29,6 +29,7 @@ router.post("/users/login", async (req, res) => {
   }
 });
 
+
 // Logging Out The User (From Current Device)
 router.post("/users/logout", auth, async (req, res) => {
   try {
@@ -100,6 +101,44 @@ router.get("/users/:id/avatar", async (req, res) => {
     res.status(400).send(error.message);
   }
 });
+
+//Adding New Cover
+router.post(
+  "/users/me/cover",
+  auth,
+  upload.single("cover"),
+  async (req, res) => {
+    try {
+      let buffer = await sharp(req.file.buffer)
+//        .resize({ width: 250, height: 250 })
+        .png()
+        .toBuffer();
+
+      req.user.cover = buffer;
+      await req.user.save();
+      res.status(200).send(req.user);
+    } catch (error) {
+      res.status(400).send(error.message);
+    }
+  }
+);
+
+
+// Getting The User Cover From The DB
+router.get("/users/:id/cover", async (req, res) => {
+  try {
+    let user = await User.findOne({ _id: req.params.id });
+    if (!user || !user.cover) {
+      throw new Error("Cover Not Yet Addded");
+    }
+
+    res.set("Content-Type", "image/jpg");
+    res.send(user.cover);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
 
 // Deleting the User Profile
 router.delete("/users/avatar", auth, async (req, res) => {
