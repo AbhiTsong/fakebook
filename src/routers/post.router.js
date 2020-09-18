@@ -62,6 +62,7 @@ router.post("/posts/create", auth, upload.single("photo"), async (req, res) => {
    }
  );
 
+
 /************************* Route For Getting All The Posts in DB   ************************* */
 router.get("/posts", auth, async (req, res) => {
   try {
@@ -94,7 +95,7 @@ router.get("/posts/allPosts", auth, async (req, res) => {
 
 router.patch("/posts/:id", auth, async (req, res) => {
   let updates = Object.keys(req.body);
-  let valid = ["description"];
+  let valid = ["description", "like", "comment"];
   let validUpdates = updates.every((update) => valid.includes(update));
 
   if (!validUpdates) {
@@ -115,6 +116,32 @@ router.patch("/posts/:id", auth, async (req, res) => {
   }
 });
 
+/************************* Route For Adding Comments And Count On Single Post  ************************* */
+
+router.post("/posts/:id", auth, async (req, res) => {
+//  let updates = Object.keys(req.body);
+//  let valid = ["description", "like", "comment"];
+//  let validUpdates = updates.every((update) => valid.includes(update));
+
+//  if (!validUpdates) {
+//    throw new Error("Invalid Updates");
+//  }
+
+  try {
+    let post = await Post.findById(req.params.id);
+    if (!post) {
+      throw new Error("Invalid Operation");
+    }
+
+//    updates.forEach((update) => (post[update] = req.body[update]));
+//    post[req.body]
+    await post.save();
+    res.send(post);
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
 /************************* Deleting The User Post  ************************* */
 router.delete("/posts/:id", auth, async (req, res) => {
   try {
@@ -128,5 +155,23 @@ router.delete("/posts/:id", auth, async (req, res) => {
     res.status(400).send();
   }
 });
+
+
+///************************* Route For Incrising the Like ************************* */
+// router.post(
+//   "/post/:id/like",
+//   auth,
+//   async (req, res) => {
+//     let post = new Post({...req.body, req.like: req.like++});
+//
+//     try {
+//       post.owner = req.user._id;
+//       await post.save();
+//       res.status(201).send(post);
+//     } catch (error) {
+//       res.status(400).send(error.message);
+//     }
+//   }
+// );
 
 module.exports = router;
