@@ -118,25 +118,35 @@ router.patch("/posts/:id", auth, async (req, res) => {
 
 /************************* Route For Adding Comments And Count On Single Post  ************************* */
 
-router.post("/posts/:id", auth, async (req, res) => {
-//  let updates = Object.keys(req.body);
-//  let valid = ["description", "like", "comment"];
-//  let validUpdates = updates.every((update) => valid.includes(update));
-
-//  if (!validUpdates) {
-//    throw new Error("Invalid Updates");
-//  }
-
+router.post("/posts/:id/comment", auth, async (req, res) => {
   try {
     let post = await Post.findById(req.params.id);
     if (!post) {
       throw new Error("Invalid Operation");
     }
 
-//    updates.forEach((update) => (post[update] = req.body[update]));
-//    post[req.body]
+    post.comments.push({comment: req.body.comment, owner: req.body.id.toString(), name: req.body.name})
+//    post.comment.owner = 
     await post.save();
-    res.send(post);
+    res.send("Comment Added Successfully");
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
+/************************* Route For Like Count On Single Post  ************************* */
+
+router.post("/posts/:id/like", auth, async (req, res) => {
+console.log(req.body)
+  try {
+    let post = await Post.findById(req.params.id);
+    if (!post) {
+      throw new Error("Invalid Operation");
+    }
+
+    post.like = req.body.like
+    await post.save();
+    res.send("Successfully Liked The Post");
   } catch (error) {
     res.status(400).send();
   }
@@ -156,22 +166,5 @@ router.delete("/posts/:id", auth, async (req, res) => {
   }
 });
 
-
-///************************* Route For Incrising the Like ************************* */
-// router.post(
-//   "/post/:id/like",
-//   auth,
-//   async (req, res) => {
-//     let post = new Post({...req.body, req.like: req.like++});
-//
-//     try {
-//       post.owner = req.user._id;
-//       await post.save();
-//       res.status(201).send(post);
-//     } catch (error) {
-//       res.status(400).send(error.message);
-//     }
-//   }
-// );
 
 module.exports = router;

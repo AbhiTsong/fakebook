@@ -22,12 +22,14 @@ const postSchema = mongoose.Schema(
     },
 like: {
     type: Number,
-default: 0
+    owner: String,
+    default: 0
 },
-comment: [{
-type: String,
-default: null
-}]
+    comments: [{
+       owner: String,
+       comment: String,
+       name: String,
+    }],
   },
   {
     timestamps: true,
