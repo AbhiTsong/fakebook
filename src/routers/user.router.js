@@ -5,6 +5,17 @@ const auth = require("../middlewares/auth.middleware");
 const multer = require("multer");
 const sharp = require("sharp");
 
+//Route For Getting All The Users In The Database
+router.get("/users", auth ,async (req, res) => {
+  try {
+    let users = await User.find({});
+res.send(users)
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
+
 // Signing Up A New User
 router.post("/users/create", async (req, res) => {
   let user = new User(req.body);

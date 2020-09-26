@@ -108,11 +108,40 @@ const userSchema = mongoose.Schema(
       type: Buffer,
       default: null,
     },
+    friendRequests: [
+        {
+       owner: String,
+       friend: false,
+       name: String,
+    }
+],
+
+    friendList: [
+        {
+       owner: String,
+    }
+]
   },
   {
     timestamps: true,
   }
 );
+
+
+//Deleting the sensetive data defore it is being to the user
+
+userSchema.methods.toJSON = function () {
+const user = this
+const userObject = user.toObject()
+delete userObject.password
+delete userObject.tokens
+delete userObject.avatar
+delete userObject.cover
+delete userObject.gender
+//delete userObject.avatar
+//delete userObject.cover
+return userObject
+}
 
 // virtual for linking post to the user who created it
 userSchema.virtual("photo", {

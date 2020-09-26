@@ -23,7 +23,7 @@ let upload = multer({
 
 /************************* Add A Post (Pic || text)   ************************* */
 router.post("/posts/create", auth, upload.single("photo"), async (req, res) => {
-  let post = new Post({ ...req.body, owner: req.user._id });
+  let post = new Post({ ...req.body, owner: req.user._id, creator: `${req.user.firstName} ${req.user.lastName}` });
   try {
     let buffer; 
     if (req.file.buffer !== undefined) {
@@ -77,6 +77,21 @@ router.get("/posts", auth, async (req, res) => {
 });
 
 
+
+/************************* Route For Getting Single Posts in DB   ************************* */
+router.get("/posts/:id",  auth ,async (req, res) => {
+  try {
+    let singlePost = await Post.find({_id: req.params.id});
+    if (singlePost.length === 0) {
+      return res.status(204).send({ message: "Error Editing the post" });
+    }
+    res.send(singlePost);
+  } catch (error) {
+    return res.status(400).send(error.message);
+  }
+});
+
+
 /************************* Route Getting the Users Posts   ************************* */
 router.get("/posts/allPosts", auth, async (req, res) => {
   try {
@@ -95,7 +110,7 @@ router.get("/posts/allPosts", auth, async (req, res) => {
 
 router.patch("/posts/:id", auth, async (req, res) => {
   let updates = Object.keys(req.body);
-  let valid = ["description", "like", "comment"];
+  let valid = ["description"];
   let validUpdates = updates.every((update) => valid.includes(update));
 
   if (!validUpdates) {
@@ -103,7 +118,7 @@ router.patch("/posts/:id", auth, async (req, res) => {
   }
 
   try {
-    let post = await Post.findById(req.params.id);
+    let post = await Post.findById(req.params.id);;
     if (!post) {
       throw new Error("Invalid Updates");
     }
@@ -112,7 +127,7 @@ router.patch("/posts/:id", auth, async (req, res) => {
     await post.save();
     res.send(post);
   } catch (error) {
-    res.status(400).send();
+    res.status(400).send(error.message);
   }
 });
 
@@ -137,7 +152,6 @@ router.post("/posts/:id/comment", auth, async (req, res) => {
 /************************* Route For Like Count On Single Post  ************************* */
 
 router.post("/posts/:id/like", auth, async (req, res) => {
-console.log(req.body)
   try {
     let post = await Post.findById(req.params.id);
     if (!post) {
