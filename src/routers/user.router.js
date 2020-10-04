@@ -6,15 +6,17 @@ const multer = require("multer");
 const sharp = require("sharp");
 
 //Route For Getting All The Users In The Database
-router.get("/users", auth ,async (req, res) => {
+router.get("/users", auth, async (req, res) => {
   try {
     let users = await User.find({});
-res.send(users)
+
+    let filtered = users.filter((user) => user.id !== req.user.id);
+    // await filtered.save()
+    res.send(filtered);
   } catch (error) {
     res.status(400).send(error.message);
   }
 });
-
 
 // Signing Up A New User
 router.post("/users/create", async (req, res) => {
@@ -39,7 +41,6 @@ router.post("/users/login", async (req, res) => {
     res.status(400).send(error.message);
   }
 });
-
 
 // Logging Out The User (From Current Device)
 router.post("/users/logout", auth, async (req, res) => {
@@ -121,7 +122,7 @@ router.post(
   async (req, res) => {
     try {
       let buffer = await sharp(req.file.buffer)
-//        .resize({ width: 250, height: 250 })
+        //        .resize({ width: 250, height: 250 })
         .png()
         .toBuffer();
 
@@ -133,7 +134,6 @@ router.post(
     }
   }
 );
-
 
 // Getting The User Cover From The DB
 router.get("/users/:id/cover", async (req, res) => {
@@ -149,7 +149,6 @@ router.get("/users/:id/cover", async (req, res) => {
     res.status(400).send(error.message);
   }
 });
-
 
 // Deleting the User Profile
 router.delete("/users/avatar", auth, async (req, res) => {

@@ -19,6 +19,8 @@ const postRouter = require("./routers/post.router");
 app.use(postRouter);
 const photoRouter = require("./routers/photo.router");
 app.use(photoRouter);
+const friendsRouter = require("./routers/friends.router.js");
+app.use(friendsRouter)
 
 app.listen(PORT, () => {
   console.log(`App live on port ${PORT}`);
