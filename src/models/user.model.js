@@ -165,7 +165,7 @@ userSchema.methods.generateAuthToken = async function () {
     { _id: user._id.toString() },
     process.env.JWT_SECRET,
     {
-      expiresIn: "3 days",
+      expiresIn: "1 Day",
     }
   );
 

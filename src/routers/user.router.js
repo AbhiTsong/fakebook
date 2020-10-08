@@ -44,14 +44,15 @@ router.post("/users/login", async (req, res) => {
 
 // Logging Out The User (From Current Device)
 router.post("/users/logout", auth, async (req, res) => {
-  try {
+console.log("req.token", req.token)  
+try {
     req.user.tokens = req.user.tokens.filter(
       (token) => token.token !== req.token
     );
     await req.user.save();
     res.send({ Message: "Logged Out From The Current Device." });
   } catch (error) {
-    res.status(400).send();
+    res.status(400).send(error.message);
   }
 });
 
