@@ -25,10 +25,15 @@ like: {
     owner: String,
     default: 0
 },
+   hasAvatar: {
+    type: Boolean,
+    required: true
+},
     comments: [{
        owner: String,
        comment: String,
        name: String,
+       hasAvatar: Boolean
     }],
   },
   {

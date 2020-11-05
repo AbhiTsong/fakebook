@@ -44,7 +44,6 @@ router.post("/users/login", async (req, res) => {
 
 // Logging Out The User (From Current Device)
 router.post("/users/logout", auth, async (req, res) => {
-console.log("req.token", req.token)  
 try {
     req.user.tokens = req.user.tokens.filter(
       (token) => token.token !== req.token
@@ -63,7 +62,7 @@ router.post("/users/logoutAll", auth, async (req, res) => {
     await req.user.save();
     res.send({ Message: "Logged Out From All The Devices" });
   } catch (error) {
-    res.status(400).send();
+    res.status(400).send(error.message);
   }
 });
 
@@ -92,6 +91,7 @@ router.post(
         .toBuffer();
 
       req.user.avatar = buffer;
+      req.user.hasAvatar = true;
       await req.user.save();
       res.status(200).send(req.user);
     } catch (error) {

@@ -103,12 +103,39 @@ const userSchema = mongoose.Schema(
       type: Buffer,
       default: null,
     },
+    hasAvatar: {
+        type: Boolean,
+        default: false
+    },
 
     cover: {
       type: Buffer,
       default: null,
     },
+    hasCover: {
+        type: Boolean,
+        default: false
+    },
+    friendRequests: [
+      {
+        owner: String,
+        name: String,
+        friend: false,
+      },
+    ],
+    friendRequestsSent: [
+      {
+        owner: String,
+      },
+    ],
+
+    friendList: [
+      {
+        owner: String,
+      },
+    ],
   },
+
   {
     timestamps: true,
   }
