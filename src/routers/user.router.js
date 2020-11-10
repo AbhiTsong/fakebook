@@ -36,6 +36,11 @@ router.post("/users/login", async (req, res) => {
     let user = await User.authenticateUser(req.body.email, req.body.password);
     let token = await user.generateAuthToken();
 
+    if (user.tokens.length >= 3) {
+      user.tokens.shift();
+    }
+    await user.save()
+
     res.send({ user, token });
   } catch (error) {
     res.status(400).send(error.message);
@@ -44,7 +49,7 @@ router.post("/users/login", async (req, res) => {
 
 // Logging Out The User (From Current Device)
 router.post("/users/logout", auth, async (req, res) => {
-try {
+  try {
     req.user.tokens = req.user.tokens.filter(
       (token) => token.token !== req.token
     );

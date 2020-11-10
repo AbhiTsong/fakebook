@@ -13,6 +13,12 @@ async function auth(req, res, next) {
       throw new Error();
     }
 
+    if(user.tokens.length >= 3){
+      await user.tokens.shift()
+      console.log("length",user.tokens.length )
+    }
+
+
     req.token = token;
     req.user = user;
 
