@@ -8,3 +8,8 @@ mongoose.connect(process.env.FAKE_BOOK, {
   useCreateIndex: true,
   useFindAndModify: false,
 });
+
+const connection = mongoose.connection;
+connection.once("open", () => {
+  console.log("Mongobd connection establised successfully");
+});

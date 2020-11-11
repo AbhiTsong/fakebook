@@ -128,11 +128,11 @@ router.post(
   async (req, res) => {
     try {
       let buffer = await sharp(req.file.buffer)
-        //        .resize({ width: 250, height: 250 })
         .png()
         .toBuffer();
 
       req.user.cover = buffer;
+      req.user.hasCover = true;
       await req.user.save();
       res.status(200).send(req.user);
     } catch (error) {
